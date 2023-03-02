@@ -1,32 +1,47 @@
-import React, {useEffect, useState} from "react"
+import React, { useEffect, useState } from "react"
+import axios from "axios"
+import { useNavigate } from "react-router-dom"
+import { Card } from "antd"
+import './Dogs.css';
 
 const Dogs = (props) => {
 
-    const [data,setData] = useState([])
+    const apiSrc = "https://api.thedogapi.com/v1/images/search?format=json&limit=100&has_breeds=1"
+    const apiKey = "live_rOuqiEI0j2qAQUZMDnHDzegt5x6uP7PVA3EUdt8KY88WgGno5hxYumlDRGs2vusP"
+    const header = {
+        headers: {
+            "Content-Type": "application/json",
+            "x-api-key": apiKey
+        }
+    }
+    const [data, setData] = useState([])
+
+    var navigate = useNavigate();
+    function ClickNavigate() {
+        navigate("/about")
+    }
 
     useEffect(() => {
-        const requestOptions = {
-            method: "GET",
-            headers: {
-                "Content-Type": 'application/json',
-                'x-api-key': 'live_rOuqiEI0j2qAQUZMDnHDzegt5x6uP7PVA3EUdt8KY88WgGno5hxYumlDRGs2vusP'
-            },
-        };
-
-        fetch("https://api.thedogapi.com/v1/images/search?format=json&limit=100&has_breeds=1", requestOptions)
-        .then(c => c.json())
-        .then(data =>setData(data));
+        axios.get(apiSrc, header)
+            .then(response => setData(response.data))
     }, [])
+
+    console.log(data)
 
     return (
         <div className="Dog">
             {
-                data.map((x)=>
-                     <div>
-                        <p>{x.breeds[0].name}</p>
-                        <img alt="Loadig" src={x.url} style={{ width: 240}} ></img>
-                     </div>                    
-                ) 
+                data.map(x => {
+                    return (
+                        <Card id="DogCard" key={x.id}
+                            style = { {width: 400}} 
+                            title={
+                                <p>{x.breeds[0].name}</p>
+                            }>
+                            <img onClick = { ClickNavigate} alt="Loadig" src={x.url} style={{ width: 240 }} ></img>
+                        </Card>
+                    );
+                })
             }
         </div>
     );
